@@ -1,95 +1,90 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import React, { useState, useEffect } from 'react';
+import styles from './page.module.css'; // Assuming you have a CSS module for styles
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+const initialItemPrices = {
+    guruch: 34000,
+    gosht: 100000,
+    dumba: 100000,
+    sabzi: 8000,
+    yog: 25000,
+    magiz: 80000,
+    nohot: 50000,
+    piyoz: 5000,
+    tuz: 5000,
+    zira: 25000,
+    muruch: 25000
+};
+
+const Page = () => {
+    const [weights, setWeights] = useState(Object.fromEntries(Object.keys(initialItemPrices).map(item => [item, ''])));
+    const [prices, setPrices] = useState(initialItemPrices);
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    useEffect(() => {
+        // Calculate total price of all items
+        const total = Object.keys(prices).reduce((acc, key) => {
+            return acc + (weights[key] * prices[key]);
+        }, 0);
+        setTotalPrice(total);
+    }, [weights, prices]);
+
+    // Format price with thousands separator and two decimal places
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'decimal',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(price);
+    };
+
+    const handleWeightChange = (e, item) => {
+        const newWeight = parseInt(e.target.value) || 0; // Convert input value to integer, default to 0 if invalid
+        setWeights({
+            ...weights,
+            [item]: newWeight
+        });
+    };
+
+    const handlePriceChange = (e, item) => {
+        const newPrice = parseInt(e.target.value) || 0; // Convert input value to integer, default to 0 if invalid
+        setPrices({
+            ...prices,
+            [item]: newPrice
+        });
+    };
+
+    return (
+        <div className={styles.container}>
+            <h1 className={styles.title}>Item Prices Calculator</h1>
+            <div className={styles.itemsContainer}>
+                {
+                    Object.entries(initialItemPrices).map(([key, defaultPrice]) => (
+                        <div key={key} className={styles.item}>
+                            <p className={styles.itemName}>{key}</p>
+                            <input
+                                type="number"
+                                className={styles.input}
+                                value={weights[key]}
+                                onChange={(e) => handleWeightChange(e, key)}
+                            />
+                            <input
+                                type="number"
+                                defaultValue={defaultPrice}
+                                className={styles.input}
+                                onChange={(e) => handlePriceChange(e, key)}
+                            />
+                            <p className={styles.totalPrice}>Total Price: {formatPrice(weights[key] * prices[key])}</p>
+                        </div>
+                    ))
+                }
+            </div>
+            <div className={styles.totalContainer}>
+                <h2 className={styles.totalHeading}>Total Price of All Items</h2>
+                <p className={styles.totalPriceAll}>Total: {formatPrice(totalPrice)}</p>
+            </div>
         </div>
-      </div>
+    );
+};
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
-}
+export default Page;
